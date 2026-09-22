@@ -44,11 +44,15 @@
 
 <table>
   <tr>
+    <td><img src="docs/bilder/rack.png" alt="Rack mit Vorder- und Rückansicht"></td>
     <td><img src="docs/bilder/geraete.png" alt="Geräteliste"></td>
+  </tr>
+  <tr>
+    <td><img src="docs/bilder/ports.png" alt="Port-Übersicht mit RJ45 und SFP+"></td>
     <td><img src="docs/bilder/netzplan.png" alt="Netzwerkplan"></td>
   </tr>
   <tr>
-    <td><img src="docs/bilder/steckplaetze.png" alt="Steckplätze"></td>
+    <td><img src="docs/bilder/steckplaetze.png" alt="Steckplätze der Steckdosenleiste"></td>
     <td><img src="docs/bilder/etiketten.png" alt="QR-Etiketten"></td>
   </tr>
 </table>

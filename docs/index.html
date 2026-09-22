@@ -71,7 +71,9 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  img { max-width: 100%; display: block; }
+  /* height: auto ist Pflicht: Die Bilder tragen width/height fuer ein
+     ruhiges Laden, sonst behielten sie beim Verkleinern ihre volle Hoehe. */
+  img { max-width: 100%; height: auto; display: block; }
   a { color: var(--blau-schrift); }
 
   .bahn { max-width: 1040px; margin: 0 auto; padding-inline: 22px; }
@@ -261,7 +263,7 @@
   </div>
 
   <figure class="platte">
-    <img src="bilder/app-hell.png" width="2560" height="1640" alt="Das Dashboard von RackView: links die Navigation, in der Mitte Rack A mit zwölf Höheneinheiten, rechts die Geräteliste.">
+    <img src="bilder/app-hell.png" width="2560" height="1640" alt="Das Dashboard von RackView: links die Navigation, in der Mitte das Rack „Homelab“ mit zwölf Höheneinheiten und gezeichneten Gerätefronten, rechts die Geräteliste.">
     <figcaption>Dashboard mit Rack-Ansicht · Beispieldaten</figcaption>
   </figure>
 </div>
@@ -280,7 +282,7 @@
 
     <div class="duo" style="margin-top: 44px">
       <figure class="platte bild" style="margin-top: 0">
-        <img src="bilder/rack.png" width="1928" height="1708" alt="Rack-Ansicht mit Umschalter zwischen Vorderseite und Rückseite, Geräten auf ihren Höheneinheiten und einer Liste daneben.">
+        <img src="bilder/rack.png" width="1928" height="1708" alt="Rack-Ansicht mit Umschalter zwischen Vorderseite und Rückseite: Patchpanel, Switch mit SFP+-Käfigen, Server mit Einschüben und USV, daneben die Liste der Geräte.">
       </figure>
       <div class="text">
         <h3>Vorne und hinten</h3>
@@ -310,13 +312,13 @@
         </p>
       </div>
       <figure class="platte bild" style="margin-top: 0">
-        <img src="bilder/geraete.png" width="1928" height="898" alt="Geräteübersicht als Tabelle mit Vorschaubild, Typ, Standort, IP-Adresse, Ports und Status.">
+        <img src="bilder/geraete.png" width="1928" height="1872" alt="Geräteübersicht als Tabelle mit Typ, Standort im Rack oder Raum, IP-Adresse, Ports, Garantie und Status.">
       </figure>
     </div>
 
     <div class="duo">
       <figure class="platte bild" style="margin-top: 0">
-        <img src="bilder/netzplan.png" width="1928" height="1226" alt="Netzwerkplan: Geräte als Knoten, dazwischen die dokumentierten Port-Verbindungen.">
+        <img src="bilder/netzplan.png" width="1928" height="1066" alt="Netzwerkplan: Geräte als Knoten, dazwischen die Port-Verbindungen, eingefärbt nach Geschwindigkeit.">
       </figure>
       <div class="text">
         <span class="marke">Das Netz</span>
@@ -331,6 +333,23 @@
 
     <div class="duo">
       <div class="text">
+        <span class="marke">Die Anschlüsse</span>
+        <h2>Jede Buchse, wie sie aussieht.</h2>
+        <p class="gross leise" style="margin-top: 16px">
+          RJ45, SFP+, USB und Strom – gezeichnet wie am Gerät. Belegte Ports leuchten
+          grün, PoE trägt einen orangen Strich. Ein Klick zeigt, was am anderen Ende hängt.
+        </p>
+      </div>
+      <figure class="platte bild" style="margin-top: 0">
+        <img src="bilder/ports.png" width="1928" height="930" alt="Port-Übersicht eines Switches mit 24 RJ45-Buchsen und zwei SFP+-Käfigen, daneben die Details zu Port 25: SFP+, 10G, verbunden mit dem Server Proxmox.">
+      </figure>
+    </div>
+
+    <div class="duo">
+      <figure class="platte bild" style="margin-top: 0">
+        <img src="bilder/steckplaetze.png" width="1928" height="874" alt="Steckplätze einer Steckdosenleiste als gezeichnete Schukodosen, daneben die Details zu Platz 3: angeschlossen ist der Server Proxmox.">
+      </figure>
+      <div class="text">
         <span class="marke">Der Strom</span>
         <h2>Welches Netzteil in welcher Dose.</h2>
         <p class="gross leise" style="margin-top: 16px">
@@ -339,15 +358,9 @@
           Gerät hängt an genau einem Platz – steckt es schon woanders, fragt RackView nach.
         </p>
       </div>
-      <figure class="platte bild" style="margin-top: 0">
-        <img src="bilder/steckplaetze.png" width="1928" height="1408" alt="Gerätedetails einer Steckdosenleiste mit dem Reiter Steckplätze und je Platz einer Auswahl.">
-      </figure>
     </div>
 
     <div class="duo">
-      <figure class="platte bild" style="margin-top: 0">
-        <img src="bilder/etiketten.png" width="1928" height="1260" alt="Etikettenseite mit Auswahl der Geräte, Formatwahl und einer Vorschau der QR-Etiketten in Millimetern.">
-      </figure>
       <div class="text">
         <span class="marke">Vor Ort</span>
         <h2>Ein Code am Gerät.</h2>
@@ -357,6 +370,9 @@
           im Serverraum die schnellste Antwort auf „was ist das hier eigentlich".
         </p>
       </div>
+      <figure class="platte bild" style="margin-top: 0">
+        <img src="bilder/etiketten.png" width="2152" height="1724" alt="Etikettenseite mit Formatwahl, Auswahl der Geräte und einer Vorschau der QR-Etiketten in Millimetern.">
+      </figure>
     </div>
   </div>
 </section>
