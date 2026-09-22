@@ -60,16 +60,22 @@ Datenpfad – mehr braucht es nicht.
 
 ### Unraid
 
-Die Vorlage auf den USB-Stick holen (Konsole von Unraid, oben rechts `>_`):
+RackView steht im App-Katalog: **Apps** → nach **RackView** suchen → **Install**.
+Port und Datenpfad prüfen, **Apply**.
+
+> **Bald verfügbar:** RackView ist für den App-Katalog freigegeben und erscheint dort
+> mit dessen nächster Aktualisierung. Findest du es noch nicht, nimm so lange den Weg
+> über die Vorlage.
+
+Ohne App-Katalog geht es über die Vorlage (Konsole von Unraid, oben rechts `>_`):
 
 ```bash
 wget -O /boot/config/plugins/dockerMan/templates-user/my-RackView.xml \
   https://raw.githubusercontent.com/alexanderschubert/rackview/main/templates/rackview.xml
 ```
 
-Dann **Docker → Add Container**, oben unter *User templates* **RackView** wählen,
-Port und Datenpfad prüfen, **Apply**. Ausführlich, mit Updates und Fehlersuche:
-[unraid/README.md](unraid/README.md)
+Dann **Docker → Add Container**, oben unter *User templates* **RackView** wählen.
+Ausführlich, mit Updates und Fehlersuche: [unraid/README.md](unraid/README.md)
 
 ### Docker
 

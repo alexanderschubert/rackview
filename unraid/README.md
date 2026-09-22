@@ -46,34 +46,40 @@ Alles Dauerhafte liegt im Datenpfad, im Container ist das `/config`:
 
 ---
 
-## 1. Vorlage holen
+## 1. Installieren
 
-In der Konsole von Unraid (oben rechts `>_`):
+**Über den App-Katalog** – der einfache Weg: **Apps** → nach **RackView**
+suchen → **Install**. Es öffnet sich das Edit-Fenster aus Abschnitt 2.
+
+> **Bald verfügbar:** RackView ist für den App-Katalog freigegeben und erscheint
+> dort mit dessen nächster Aktualisierung. Bis dahin den Weg ohne App-Katalog
+> nehmen.
+
+**Ohne App-Katalog** – etwa wenn das Plugin *Community Applications* fehlt: die
+Vorlage in der Konsole von Unraid (oben rechts `>_`) auf den USB-Stick holen,
 
 ```bash
 wget -O /boot/config/plugins/dockerMan/templates-user/my-RackView.xml \
   https://raw.githubusercontent.com/alexanderschubert/rackview/main/templates/rackview.xml
 ```
 
-Die Vorlage liegt damit auf dem USB-Stick und übersteht jeden Neustart.
+dann **Docker** → **Add Container** und oben bei *Select a template* unter
+**User templates** den Eintrag **RackView** wählen.
 
 ---
 
-## 2. Container anlegen
+## 2. Felder prüfen und starten
 
-1. **Docker** → **Add Container**
-2. Oben bei *Select a template* unter **User templates** den Eintrag
-   **RackView** wählen
-3. Die Felder prüfen:
+Im Edit-Fenster:
 
-   | Feld | Wert |
-   | --- | --- |
-   | Weboberfläche | `8080` – oder ein anderer freier Port |
-   | Datenpfad | `/mnt/user/appdata/rackview-app` |
-   | Zeitzone | `Europe/Berlin` |
-   | Selbstregistrierung | `true` fürs erste Konto |
+| Feld | Wert |
+| --- | --- |
+| Weboberfläche | `8080` – oder ein anderer freier Port |
+| Datenpfad | `/mnt/user/appdata/rackview-app` |
+| Zeitzone | `Europe/Berlin` |
+| Selbstregistrierung | `true` fürs erste Konto |
 
-4. **Apply**
+Dann **Apply**.
 
 Unraid lädt das Image herunter und startet den Container. Der **erste Start
 dauert länger**: PostgreSQL legt sein Datenverzeichnis an und Laravel lässt die
@@ -250,7 +256,7 @@ eintragen.
 >   Port, Variable, Label or Device* → Config Type **Variable**, Key
 >   z. B. `OIDC_ENABLED`, Value `true`. Für jede der Variablen einmal.
 > * **Vorlage ersetzen** (schneller): die Vorlage mit dem `wget`-Befehl
->   aus [Abschnitt 1](#1-vorlage-holen) neu herunterladen. Achtung – darin
+>   aus [Abschnitt 1](#1-installieren) neu herunterladen. Achtung – darin
 >   stehen die Vorgaben für Port und Datenpfad, nicht deine eigenen Werte;
 >   danach im Edit-Fenster **jedes Feld prüfen**, bevor du *Apply* drückst.
 

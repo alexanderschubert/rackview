@@ -427,16 +427,17 @@
     <div class="wege">
       <div class="weg">
         <h3>Unraid</h3>
-        <p>Über eine Vorlage – danach läuft alles über die Docker-Oberfläche.</p>
+        <p>Aus dem App-Katalog – danach läuft alles über die Docker-Oberfläche.
+          <b>Bald verfügbar:</b> RackView ist freigegeben und erscheint mit der nächsten
+          Aktualisierung des Katalogs. Bis dahin über die Vorlage weiter unten.</p>
         <ol>
-          <li>
-            Vorlage auf den USB-Stick holen (Konsole, oben rechts <code>&gt;_</code>):
-            <pre>wget -O /boot/config/plugins/dockerMan/templates-user/my-RackView.xml \
-  https://raw.githubusercontent.com/alexanderschubert/rackview/main/templates/rackview.xml</pre>
-          </li>
-          <li><b>Docker → Add Container</b>, oben unter <i>User templates</i> den Eintrag <b>RackView</b> wählen.</li>
+          <li><b>Apps</b> öffnen und nach <b>RackView</b> suchen.</li>
+          <li><b>Install</b> – es öffnet sich das Edit-Fenster.</li>
           <li>Port und Datenpfad prüfen, dann <b>Apply</b>. Der erste Start dauert länger – die Datenbank wird angelegt.</li>
         </ol>
+        <p style="margin-top: 20px; color: var(--ink-2); font-size: 15px">Ohne App-Katalog: Vorlage holen (Konsole, oben rechts <code>&gt;_</code>), dann <b>Docker → Add Container</b> → <i>User templates</i> → <b>RackView</b>.</p>
+        <pre>wget -O /boot/config/plugins/dockerMan/templates-user/my-RackView.xml \
+  https://raw.githubusercontent.com/alexanderschubert/rackview/main/templates/rackview.xml</pre>
         <div class="merke">
           Der Datenpfad darf nicht auf den Ordner mit dem Quelltext zeigen. Liegt
           <code>appdata</code> nicht auf dem Cache, wird die Datenbank spürbar langsam.
