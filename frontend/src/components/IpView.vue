@@ -6,6 +6,7 @@ import { ipToNumber, SORT_LAST as ANS_ENDE } from '../lib/network.js'
 const props = defineProps({
   devices: { type: Array, default: () => [] },
   racks: { type: Array, default: () => [] },
+  locations: { type: Array, default: () => [] },
 })
 
 const emit = defineEmits(['select-device'])
@@ -22,6 +23,10 @@ function netzVon(ip) {
 }
 
 function rackLabel(device) {
+  if (!device.rack_id) {
+    return props.locations.find((ort) => Number(ort.id) === Number(device.location_id))?.name || '–'
+  }
+
   const rack = props.racks.find((item) => Number(item.id) === Number(device.rack_id))
   const einheit = device.start_unit ? `HE ${device.start_unit}` : ''
 

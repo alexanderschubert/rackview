@@ -5,6 +5,7 @@ import { getDeviceIcon } from '../lib/deviceMeta.js'
 const props = defineProps({
   devices: { type: Array, default: () => [] },
   racks: { type: Array, default: () => [] },
+  locations: { type: Array, default: () => [] },
 })
 
 const emit = defineEmits(['select-device'])
@@ -36,7 +37,12 @@ function netzVon(ip) {
   return `${teile.slice(0, 3).join('.')}.0/24`
 }
 
+// Rack oder Standort - je nachdem, wo das Geraet steht
 function rackName(device) {
+  if (!device.rack_id) {
+    return props.locations.find((ort) => Number(ort.id) === Number(device.location_id))?.name || ''
+  }
+
   return props.racks.find((item) => Number(item.id) === Number(device.rack_id))?.name || ''
 }
 

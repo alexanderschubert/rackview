@@ -132,7 +132,8 @@ const kennzahlen = computed(() => {
     gesamt: props.devices.length,
     aktiv: status('active'),
     wartung: status('maintenance') + status('planned'),
-    racks: new Set(props.devices.map((device) => device.rack_id)).size,
+    // Geraete am Standort haben rack_id null - das ist kein weiteres Rack
+    racks: new Set(props.devices.filter((device) => device.rack_id).map((device) => Number(device.rack_id))).size,
     // Abgelaufen oder laeuft demnaechst ab - beides will man sehen
     garantie: props.devices.filter((device) => ['bald', 'abgelaufen'].includes(garantie(device).zustand)).length,
   }

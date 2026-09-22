@@ -2870,6 +2870,7 @@ async function deletePort(port) {
     v-if="currentView === 'ip'"
     :devices="allDevices"
     :racks="racks"
+    :locations="locations"
     @select-device="openDeviceFromView"
   />
 
@@ -2877,6 +2878,7 @@ async function deletePort(port) {
     v-else-if="currentView === 'vlans'"
     :devices="allDevices"
     :racks="racks"
+    :locations="locations"
     @select-device="openDeviceFromView"
   />
 
@@ -2936,6 +2938,7 @@ async function deletePort(port) {
     v-else-if="currentView === 'labels'"
     :devices="allDevices"
     :racks="racks"
+    :locations="locations"
     :preselect="labelPreselect"
   />
 

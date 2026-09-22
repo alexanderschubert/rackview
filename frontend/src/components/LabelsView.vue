@@ -6,6 +6,7 @@ import { qrSvg } from '../lib/qr.js'
 const props = defineProps({
   devices: { type: Array, default: () => [] },
   racks: { type: Array, default: () => [] },
+  locations: { type: Array, default: () => [] },
   // Vorauswahl, z. B. aus den Gerätedetails heraus
   preselect: { type: Array, default: () => [] },
 })
@@ -59,6 +60,10 @@ function rackVon(device) {
   return props.racks.find((rack) => Number(rack.id) === Number(device?.rack_id)) || null
 }
 
+function ortVon(device) {
+  return props.locations.find((ort) => Number(ort.id) === Number(device?.location_id)) || null
+}
+
 function hePosition(device) {
   const start = Number(device.start_unit) || 0
   const hoehe = Number(device.height_units) || 1
@@ -66,20 +71,43 @@ function hePosition(device) {
   return hoehe > 1 ? `HE ${start}–${start + hoehe - 1}` : `HE ${start}`
 }
 
+// "Homelab · HE 7–8" im Rack, "Dachboden" am Standort
+function woSteht(device) {
+  const rack = rackVon(device)
+
+  if (rack) return `${rack.name} · ${hePosition(device)}`
+
+  return ortVon(device)?.name || ''
+}
+
+// Filterwerte "rack:3" oder "ort:2" - eine Zahl allein waere mehrdeutig
+function passtZumFilter(device) {
+  if (rackFilter.value === 'all') return true
+
+  const [art, id] = rackFilter.value.split(':')
+
+  return art === 'rack'
+    ? Number(device.rack_id) === Number(id)
+    : !device.rack_id && Number(device.location_id) === Number(id)
+}
+
 const gefiltert = computed(() => {
   const text = suche.value.trim().toLowerCase()
 
   return props.devices
-    .filter((device) => rackFilter.value === 'all' || Number(device.rack_id) === Number(rackFilter.value))
+    .filter(passtZumFilter)
     .filter((device) => {
       if (!text) return true
 
       return [device.name, device.ip_address, device.manufacturer, device.model, device.serial_number]
         .some((wert) => String(wert || '').toLowerCase().includes(text))
     })
+    // Erst die Racks, darin von oben nach unten; danach die Standorte
     .sort((a, b) =>
-      String(rackVon(a)?.name || '').localeCompare(String(rackVon(b)?.name || ''), 'de') ||
-      Number(b.start_unit) - Number(a.start_unit)
+      Number(!a.rack_id) - Number(!b.rack_id) ||
+      String(rackVon(a)?.name || ortVon(a)?.name || '').localeCompare(String(rackVon(b)?.name || ortVon(b)?.name || ''), 'de') ||
+      Number(b.start_unit) - Number(a.start_unit) ||
+      String(a.name || '').localeCompare(String(b.name || ''), 'de')
     )
 })
 
@@ -103,13 +131,13 @@ const ausgewaehlt = computed(() =>
 
 const etiketten = computed(() =>
   ausgewaehlt.value.map((device) => {
-    const rack = rackVon(device)
+    const wo = woSteht(device)
 
     return {
       id: device.id,
       name: device.name || 'Ohne Namen',
       zeilen: [
-        mitRack.value && rack ? `${rack.name} · ${hePosition(device)}` : '',
+        mitRack.value && wo ? wo : '',
         mitIp.value && device.ip_address ? device.ip_address : '',
         mitModell.value ? [device.manufacturer, device.model].filter(Boolean).join(' ') : '',
       ].filter(Boolean),
@@ -243,7 +271,7 @@ function drucken() {
         <span class="etiketten-titel">Aufdruck</span>
 
         <label class="etiketten-haken">
-          <input v-model="mitRack" type="checkbox" /> Rack und Höheneinheit
+          <input v-model="mitRack" type="checkbox" /> Rack und Höheneinheit bzw. Standort
         </label>
 
         <label class="etiketten-haken">
@@ -276,9 +304,14 @@ function drucken() {
         spellcheck="false"
       />
 
-      <select v-model="rackFilter" aria-label="Nach Rack filtern">
-        <option value="all">Alle Racks</option>
-        <option v-for="rack in racks" :key="rack.id" :value="rack.id">{{ rack.name }}</option>
+      <select v-model="rackFilter" aria-label="Nach Rack oder Standort filtern">
+        <option value="all">Überall</option>
+        <optgroup v-if="racks.length" label="Racks">
+          <option v-for="rack in racks" :key="`rack-${rack.id}`" :value="`rack:${rack.id}`">{{ rack.name }}</option>
+        </optgroup>
+        <optgroup v-if="locations.length" label="Standorte">
+          <option v-for="ort in locations" :key="`ort-${ort.id}`" :value="`ort:${ort.id}`">{{ ort.name }}</option>
+        </optgroup>
       </select>
 
       <button type="button" class="etiketten-button" @click="alleGefiltertenSetzen(true)">Alle auswählen</button>
@@ -318,7 +351,7 @@ function drucken() {
           <span class="etiketten-zeile-info">
             <strong>{{ device.name }}</strong>
             <small>
-              {{ rackVon(device)?.name || 'Ohne Rack' }} · {{ hePosition(device) }}
+              {{ woSteht(device) || 'Ohne Rack' }}
               · {{ getDeviceTypeLabel(device.device_type) }}
               <template v-if="device.ip_address"> · {{ device.ip_address }}</template>
             </small>
