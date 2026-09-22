@@ -1,0 +1,91 @@
+# Eigener Projektname, damit sich Dev- und Prod-Stack nicht
+# gegenseitig die Container ueberschreiben.
+name: rackview
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php.Dockerfile
+    container_name: rackview-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./backend:/var/www/html
+    env_file:
+      - .env
+    environment:
+      # Innerhalb des Netzwerks immer der Service-Name und der
+      # Container-Port – unabhaengig von den Host-Ports in der .env.
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      APP_KEY: ${APP_KEY}
+      AUTO_MIGRATE: ${AUTO_MIGRATE:-true}
+    ports:
+      - "${APP_PORT:-8022}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - rackview
+
+  db:
+    image: postgres:17
+    container_name: rackview-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./docker/postgres:/var/lib/postgresql/data
+    ports:
+      - "${DB_HOST_PORT:-55432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - rackview
+
+  backup:
+    build:
+      context: ./docker/backup
+    container_name: rackview-backup
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      BACKUP_SCHEDULE: ${BACKUP_SCHEDULE:-0 3 * * *}
+      RETENTION_DAYS: ${RETENTION_DAYS:-14}
+    volumes:
+      - ${BACKUP_DIR:-./backups/postgres}:/backups
+      - ./backend/storage/app/public:/uploads:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - rackview
+
+  frontend:
+    image: node:22-bookworm
+    container_name: rackview-frontend
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    networks:
+      - rackview
+
+networks:
+  rackview:
+    driver: bridge

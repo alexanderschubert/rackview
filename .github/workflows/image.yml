@@ -1,0 +1,142 @@
+# =============================================================
+# RackView – Image bauen, ausprobieren und veroeffentlichen
+# =============================================================
+# Laeuft bei jedem Push auf main, bei jedem Versions-Tag (v1.2.3)
+# und auf Knopfdruck ("Run workflow"). Bei Pull Requests wird nur
+# gebaut und ausprobiert, nichts veroeffentlicht.
+#
+# Ziel ist die GitHub Container Registry:
+#   ghcr.io/<konto>/rackview:latest        Stand von main
+#   ghcr.io/<konto>/rackview:1.2.3         Versions-Tag v1.2.3
+#   ghcr.io/<konto>/rackview:sha-abc1234   jeder einzelne Stand
+#
+# Ein Geheimnis ist nicht noetig: GITHUB_TOKEN darf in die Registry
+# des eigenen Kontos schreiben (siehe permissions).
+# =============================================================
+name: Image
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+    paths-ignore:
+      # Texte allein rechtfertigen keinen Baulauf. Fuer Tags gilt
+      # der Filter nicht - eine Version wird immer gebaut.
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+# Zwei Pushes kurz hintereinander: der aeltere Lauf wird abgebrochen.
+concurrency:
+  group: image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Quelltext holen
+        uses: actions/checkout@v5
+
+      # ghcr.io verlangt Kleinbuchstaben, Kontonamen duerfen aber
+      # Grossbuchstaben enthalten.
+      - name: Namen des Images festlegen
+        run: echo "BILD=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
+      - name: Buildx einrichten
+        uses: docker/setup-buildx-action@v3
+
+      - name: Tags und Beschriftungen bestimmen
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.BILD }}
+          flavor: |
+            latest=false
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=sha-
+          labels: |
+            org.opencontainers.image.title=RackView
+            org.opencontainers.image.description=Dokumentation fuer Serverschraenke und Heimnetz - Geraete, Ports, Verbindungen, Strom. Ein Container mit eingebauter Datenbank.
+            org.opencontainers.image.licenses=MIT
+
+      # Erst lokal bauen und ausprobieren. Veroeffentlicht wird nur,
+      # was den Probelauf besteht.
+      - name: Bauen
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/app/Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: rackview:probe
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Frischer Container ohne Daten, genau wie bei einer
+      # Neuinstallation: Datenbank anlegen, Migrationen, Start.
+      # /api/auth/status fragt die Datenbank ab - antwortet es, laufen
+      # Nginx, PHP und PostgreSQL zusammen.
+      - name: Probelauf
+        run: |
+          docker run -d --name probe -p 8080:80 rackview:probe
+
+          zustand=starting
+          for _ in $(seq 1 60); do
+            zustand="$(docker inspect -f '{{.State.Health.Status}}' probe)"
+            [ "$zustand" = healthy ] && break
+            if [ "$(docker inspect -f '{{.State.Running}}' probe)" != true ]; then
+              zustand=beendet
+              break
+            fi
+            sleep 5
+          done
+
+          docker logs probe
+
+          if [ "$zustand" != healthy ]; then
+            echo "::error::Container wurde nicht bereit (Zustand: $zustand)"
+            exit 1
+          fi
+
+          curl -fsS http://localhost:8080/ | grep -q 'id="app"'
+          curl -fsS http://localhost:8080/api/auth/status | tee /dev/stderr | grep -q '"has_users":false'
+          echo "Probelauf bestanden."
+
+      - name: Probecontainer entfernen
+        if: always()
+        run: docker rm -f probe || true
+
+      - name: An der Registry anmelden
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Alle Schichten liegen schon im Zwischenspeicher - dieser
+      # Schritt baut nichts neu, er schiebt nur.
+      - name: Veroeffentlichen
+        if: github.event_name != 'pull_request'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/app/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha

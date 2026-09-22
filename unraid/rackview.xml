@@ -1,0 +1,208 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>RackView</Name>
+  <Repository>ghcr.io/alexanderschubert/rackview:latest</Repository>
+  <Registry>https://github.com/alexanderschubert/rackview/pkgs/container/rackview</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/alexanderschubert/rackview/issues</Support>
+  <Project>https://github.com/alexanderschubert/rackview</Project>
+  <Overview>
+    RackView dokumentiert Serverschraenke und Heimnetz: Geraete in Hoeheneinheiten,
+    Vorder- und Rueckansicht, Geraete ausserhalb der Racks, Netzwerkverbindungen
+    zwischen Ports, IP- und VLAN-Uebersicht, Steckdosenleisten, Garantiedaten sowie
+    QR-Etiketten zum Ausdrucken.[br][br]
+    Alles steckt in diesem einen Container - Oberflaeche, Schnittstelle und die
+    PostgreSQL-Datenbank. Es muss nichts weiter installiert werden.[br][br]
+    Beim ersten Aufruf legt man sich ein Konto an; jedes Konto hat seinen eigenen,
+    getrennten Bereich. Wer moechte, schaltet dort auch die Zwei-Faktor-Anmeldung ein.[br][br]
+    Alle Daten liegen im Datenpfad (/config): Datenbank, Geraetebilder, naechtliche
+    Sicherungen und der Anwendungsschluessel.
+  </Overview>
+  <Category>Tools: Productivity:</Category>
+  <WebUI>http://[IP]:[PORT:80]/</WebUI>
+  <TemplateURL/>
+  <Icon>https://raw.githubusercontent.com/alexanderschubert/rackview/main/unraid/rackview-icon.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+
+  <Config Name="Weboberflaeche"
+          Target="80"
+          Default="8080"
+          Mode="tcp"
+          Description="Port, unter dem RackView im Browser erreichbar ist."
+          Type="Port"
+          Display="always"
+          Required="true"
+          Mask="false">8080</Config>
+
+  <Config Name="Datenpfad"
+          Target="/config"
+          Default="/mnt/user/appdata/rackview-app"
+          Mode="rw"
+          Description="Hier liegen Datenbank, Geraetebilder, Sicherungen und der Anwendungsschluessel. Dieser Pfad muss erhalten bleiben - und er darf nicht auf den Projektordner mit dem Quelltext zeigen."
+          Type="Path"
+          Display="always"
+          Required="true"
+          Mask="false">/mnt/user/appdata/rackview-app</Config>
+
+  <Config Name="Zeitzone"
+          Target="TZ"
+          Default="Europe/Berlin"
+          Description="Zeitzone fuer die Protokolle und den Zeitpunkt der naechtlichen Sicherung."
+          Type="Variable"
+          Display="always"
+          Required="false"
+          Mask="false">Europe/Berlin</Config>
+
+  <Config Name="Selbstregistrierung"
+          Target="RACKVIEW_REGISTRATION"
+          Default="true"
+          Description="true = auf der Anmeldeseite kann sich jeder ein Konto anlegen. Nach dem Anlegen des eigenen Kontos besser auf false setzen, vor allem wenn RackView aus dem Internet erreichbar ist. Weitere Konten legt dann der Admin in den Einstellungen an."
+          Type="Variable"
+          Display="always"
+          Required="false"
+          Mask="false">true</Config>
+
+  <Config Name="Sicherung: Zeitplan"
+          Target="BACKUP_SCHEDULE"
+          Default="0 3 * * *"
+          Description="Cron-Ausdruck fuer die Sicherung der Datenbank nach /config/backups. Leer lassen schaltet die Sicherung ab."
+          Type="Variable"
+          Display="advanced"
+          Required="false"
+          Mask="false">0 3 * * *</Config>
+
+  <Config Name="Sicherung: Aufbewahrung (Tage)"
+          Target="RETENTION_DAYS"
+          Default="14"
+          Description="Aeltere Sicherungen werden geloescht."
+          Type="Variable"
+          Display="advanced"
+          Required="false"
+          Mask="false">14</Config>
+
+  <Config Name="Adresse der Anwendung"
+          Target="APP_URL"
+          Default=""
+          Description="Nur noetig, wenn RackView hinter einem Reverse-Proxy unter einem festen Namen laeuft, z.B. https://rack.example.de"
+          Type="Variable"
+          Display="advanced"
+          Required="false"
+          Mask="false"/>
+
+  <Config Name="Anwendungsschluessel"
+          Target="APP_KEY"
+          Default=""
+          Description="Leer lassen. Beim ersten Start wird ein Schluessel erzeugt und in /config/app.key abgelegt. Nur setzen, wenn ein vorhandener Stand uebernommen wird - der Schluessel muss dann genau der alte sein."
+          Type="Variable"
+          Display="advanced"
+          Required="false"
+          Mask="true"/>
+
+  <Config Name="Migrationen automatisch"
+          Target="AUTO_MIGRATE"
+          Default="true"
+          Description="true = nach einem Update wird die Datenbank automatisch angepasst. Nur zur Fehlersuche abschalten."
+          Type="Variable"
+          Display="advanced"
+          Required="false"
+          Mask="false">true</Config>
+
+  <Config Name="Anmeldedienst (OIDC): aktiv"
+          Target="OIDC_ENABLED"
+          Default="false"
+          Description="true schaltet die Anmeldung über einen OIDC-Anbieter frei, z.B. Authentik. Die Anmeldung mit Passwort bleibt daneben bestehen. Im Anbieter als Redirect URI eintragen: http://&lt;adresse&gt;/api/auth/oidc/callback"
+          Type="Variable"
+          Display="advanced"
+          Required="false"
+          Mask="false">false</Config>
+
+  <Config Name="Anmeldedienst: Issuer"
+          Target="OIDC_ISSUER"
+          Default=""
+          Description="Adresse des Anbieters, z.B. https://auth.example.de/application/o/rackview/ - dort liegt auch /.well-known/openid-configuration."
+          Type="Variable"
+          Display="advanced"
+          Required="false"
+          Mask="false"/>
+
+  <Config Name="Anmeldedienst: Client-ID"
+          Target="OIDC_CLIENT_ID"
+          Default=""
+          Description="Client-ID der Application im Anbieter."
+          Type="Variable"
+          Display="advanced"
+          Required="false"
+          Mask="false"/>
+
+  <Config Name="Anmeldedienst: Secret"
+          Target="OIDC_CLIENT_SECRET"
+          Default=""
+          Description="Client-Secret der Application im Anbieter."
+          Type="Variable"
+          Display="advanced"
+          Required="false"
+          Mask="true"/>
+
+  <Config Name="Anmeldedienst: Aufschrift"
+          Target="OIDC_LABEL"
+          Default="Mit Authentik anmelden"
+          Description="Beschriftung des Knopfes auf der Anmeldeseite."
+          Type="Variable"
+          Display="advanced"
+          Required="false"
+          Mask="false">Mit Authentik anmelden</Config>
+
+  <Config Name="Externe Datenbank: Host"
+          Target="DB_HOST"
+          Default=""
+          Description="Leer lassen, dann laeuft PostgreSQL im Container. Nur ausfuellen, wenn eine eigene PostgreSQL-Datenbank benutzt werden soll - dann sind auch Name, Benutzer und Passwort noetig."
+          Type="Variable"
+          Display="advanced"
+          Required="false"
+          Mask="false"/>
+
+  <Config Name="Externe Datenbank: Port"
+          Target="DB_PORT"
+          Default="5432"
+          Description="Port der externen Datenbank."
+          Type="Variable"
+          Display="advanced"
+          Required="false"
+          Mask="false">5432</Config>
+
+  <Config Name="Externe Datenbank: Name"
+          Target="DB_DATABASE"
+          Default="rackview"
+          Description="Name der Datenbank."
+          Type="Variable"
+          Display="advanced"
+          Required="false"
+          Mask="false">rackview</Config>
+
+  <Config Name="Externe Datenbank: Benutzer"
+          Target="DB_USERNAME"
+          Default="rackview"
+          Description="Benutzer der Datenbank."
+          Type="Variable"
+          Display="advanced"
+          Required="false"
+          Mask="false">rackview</Config>
+
+  <Config Name="Externe Datenbank: Passwort"
+          Target="DB_PASSWORD"
+          Default=""
+          Description="Nur bei externer Datenbank noetig. Die eingebaute Datenbank vergibt sich ihr Passwort selbst (/config/db-passwort)."
+          Type="Variable"
+          Display="advanced"
+          Required="false"
+          Mask="true"/>
+</Container>

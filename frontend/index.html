@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>RackView</title>
+    <script>
+      // Helle oder dunkle Ansicht setzen, bevor etwas gezeichnet wird -
+      // sonst blitzt beim Laden kurz die falsche Ansicht auf.
+      (() => {
+        try {
+          const wunsch = localStorage.getItem('rackview-theme') || 'auto'
+          const dunkel =
+            wunsch === 'dark' ||
+            (wunsch === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+          document.documentElement.dataset.theme = dunkel ? 'dark' : 'light'
+        } catch {
+          // Privater Modus ohne localStorage: dann eben hell
+          document.documentElement.dataset.theme = 'light'
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

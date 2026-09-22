@@ -1,0 +1,74 @@
+# =============================================================
+# RackView Backend – Produktions-Image
+# Nginx + PHP-FPM in einem Container, gestartet ueber Supervisor.
+# Build-Kontext: ./backend
+# =============================================================
+FROM php:8.4-fpm-bookworm
+
+WORKDIR /var/www/html
+
+# --- Systempakete und PHP-Erweiterungen ----------------------
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        nginx \
+        supervisor \
+        curl \
+        git \
+        unzip \
+        libpq-dev \
+        libzip-dev \
+        libicu-dev \
+        libonig-dev \
+        libxml2-dev \
+    && docker-php-ext-install \
+        pdo_pgsql \
+        pgsql \
+        mbstring \
+        bcmath \
+        intl \
+        zip \
+        opcache \
+    && rm -rf /var/lib/apt/lists/*
+
+# --- PHP auf Produktionsdefaults stellen ---------------------
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+COPY docker/php-prod.ini "$PHP_INI_DIR/conf.d/zz-rackview.ini"
+
+# --- Nginx / Supervisor ---------------------------------------
+RUN rm -f /etc/nginx/sites-enabled/default
+COPY docker/nginx.conf /etc/nginx/conf.d/rackview.conf
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# --- Abhaengigkeiten zuerst: bleibt im Cache, solange sich
+#     composer.json/composer.lock nicht aendern.
+COPY composer.json composer.lock ./
+RUN composer install \
+        --no-dev \
+        --no-interaction \
+        --prefer-dist \
+        --no-scripts \
+        --no-autoloader
+
+# --- Anwendungscode ------------------------------------------
+COPY . .
+RUN composer dump-autoload --no-dev --optimize --classmap-authoritative \
+    && composer run-script post-autoload-dump --no-dev \
+    && rm -f /usr/bin/composer \
+    && mkdir -p storage/framework/cache/data \
+               storage/framework/sessions \
+               storage/framework/views \
+               storage/logs \
+               bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache
+
+COPY docker/entrypoint.prod.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+    CMD curl -fsS http://127.0.0.1/up || exit 1
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

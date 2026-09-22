@@ -1,0 +1,39 @@
+
+# Lokale Backups und temporäre Projektstände
+backups/
+frontend-unvollstaendig-*/
+*.backup*
+*.back
+*.before-*
+template-backup-*
+
+# Design-Archive gehören nicht in die Versionierung
+*.zip
+
+# Betriebssystem
+.DS_Store
+# Unraid: geloeschte, aber noch geoeffnete Dateien
+.fuse_hidden*
+
+# Arbeitsdateien von Werkzeugen, nicht Teil des Projekts
+uebergabe/
+.claude/
+CLAUDE.md
+AGENTS.md
+
+# Umgebungsvariablen und lokale Zugangsdaten
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Abhängigkeiten
+/vendor/
+backend/vendor/
+node_modules/
+frontend/node_modules/
+
+# PostgreSQL-Datenbankdaten niemals versionieren
+docker/postgres/

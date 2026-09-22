@@ -1,0 +1,108 @@
+# Eigener Projektname, damit sich Dev- und Prod-Stack nicht
+# gegenseitig die Container ueberschreiben.
+name: rackview-prod
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: docker/Dockerfile.prod
+    container_name: rackview-prod-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      APP_KEY: ${APP_KEY}
+      APP_URL: ${APP_URL:-http://localhost}
+      # Bewusst fest verdrahtet: die root .env ist auf den
+      # Entwicklungsbetrieb ausgelegt (APP_ENV=local, APP_DEBUG=true).
+      APP_ENV: production
+      APP_DEBUG: "false"
+      LOG_LEVEL: ${LOG_LEVEL:-warning}
+      AUTO_MIGRATE: ${AUTO_MIGRATE:-true}
+    volumes:
+      # Hochgeladene Geraetebilder ueberleben damit jeden Rebuild.
+      - rackview-uploads:/var/www/html/storage/app/public
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - rackview
+    # Kein Host-Port noetig: der Zugriff laeuft ueber den frontend-Container.
+    # Zum Debuggen kann man vorruebergehend freischalten:
+    # ports:
+    #   - "8022:80"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: rackview-prod-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${PROD_PORT:-8080}:80"
+    networks:
+      - rackview
+
+  db:
+    image: postgres:17
+    container_name: rackview-prod-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - rackview-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - rackview
+    # Kein Host-Port fuer die DB im Prod-Betrieb - nur intern erreichbar.
+    # Bei Bedarf (z.B. Backup-Tool von aussen) vorruebergehend freischalten:
+    # ports:
+    #   - "55432:5432"
+
+  backup:
+    build:
+      context: ./docker/backup
+    container_name: rackview-prod-backup
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DATABASE: ${DB_DATABASE}
+      BACKUP_SCHEDULE: ${BACKUP_SCHEDULE:-0 3 * * *}
+      RETENTION_DAYS: ${RETENTION_DAYS:-14}
+    volumes:
+      - ${PROD_BACKUP_DIR:-./backups/postgres-prod}:/backups
+      # Nur lesend - das Backup darf die Bilder nie veraendern.
+      - rackview-uploads:/uploads:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - rackview
+
+networks:
+  rackview:
+    driver: bridge
+
+volumes:
+  rackview-db-data:
+    driver: local
+
+  rackview-uploads:
+    driver: local

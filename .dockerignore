@@ -1,0 +1,62 @@
+# =============================================================
+# Build-Kontext fuer das Ein-Container-Image (docker/app/Dockerfile)
+# =============================================================
+# Dieses Image wird aus dem Projektroot gebaut, damit Backend und
+# Oberflaeche zusammen hineinkommen. Die .dockerignore der beiden
+# Unterordner gilt dabei NICHT mehr - alles Ausgeschlossene steht
+# deshalb hier noch einmal.
+
+.git/
+.gitignore
+.DS_Store
+**/.DS_Store
+
+# Geheimnisse gehoeren nie ins Image - in jedem Verzeichnis
+**/.env
+**/.env.*
+!**/.env.example
+
+# Wird im Image selbst erzeugt
+backend/vendor/
+frontend/node_modules/
+frontend/dist/
+node_modules/
+
+# Laufzeitdaten des Entwicklungsstands
+backend/storage/logs/*
+backend/storage/framework/cache/data/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/bootstrap/cache/*
+backend/public/storage
+backend/public/hot
+backend/.phpunit.result.cache
+backend/tests/
+docker/postgres/
+backups/
+
+# Alte Staende, Notizen und Hilfsskripte aus der Entwicklung
+uebergabe/
+frontend-unvollstaendig-*/
+AppVue.txt
+*.zip
+*.backup*
+*.back
+*.before-*
+template-backup-*
+*.sh
+!docker/**/*.sh
+add_device_details.py
+fix_device_clicks_safe.py
+
+# Die uebrigen Compose-Dateien braucht das Image nicht
+docker-compose*.yml
+*.md
+LICENSE
+docs/
+.github/
+.claude/
+unraid/
+# ... bis auf das Symbol: das liefert der Container selbst aus,
+# fuer Server, die GitHub nicht erreichen.
+!unraid/rackview-icon.png

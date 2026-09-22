@@ -1,0 +1,16 @@
+# Wird im Build-Stage per npm ci erzeugt
+node_modules/
+dist/
+
+# Archive und lokale Staende gehoeren nicht in den Build-Kontext
+*.zip
+*.backup
+*.backup-*
+src/App.vue.backup*
+src/App.vue.back*
+
+.env
+.env.*
+!.env.example
+.git/
+.DS_Store
