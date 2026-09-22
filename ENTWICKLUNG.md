@@ -14,7 +14,9 @@ docker/
   backup/                 Backup-Container des Compose-Stapels (Cron + pg_dump)
   entrypoint.sh           Entrypoint des Entwicklungs-Containers
   php.Dockerfile          Entwicklungs-Image (php -S)
-unraid/                   Vorlage und Anleitung für Unraid
+templates/rackview.xml    Unraid-Vorlage, auch für den App-Katalog
+ca_profile.xml            Profil im Unraid-App-Katalog
+unraid/                   Anleitung und Symbol für Unraid
 docs/                     Projektseite (GitHub Pages) und Bilder
 .github/workflows/        baut, prüft und veröffentlicht das Image
 docker-compose.yml        Entwicklungsbetrieb (Projekt: rackview)

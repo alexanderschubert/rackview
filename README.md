@@ -17,7 +17,8 @@
 > VLANs, power outlets, warranty dates and QR labels. It ships as a single Docker
 > image with a built-in PostgreSQL database. The user interface is currently
 > **German only**. Quick start: see *Installation* below – the commands are the same
-> in any language.
+> in any language. Built by Alexander Schubert with the help of Claude, an AI
+> assistant – see *Über das Projekt*.
 
 ![RackView](docs/bilder/app-hell.png)
 
@@ -63,7 +64,7 @@ Die Vorlage auf den USB-Stick holen (Konsole von Unraid, oben rechts `>_`):
 
 ```bash
 wget -O /boot/config/plugins/dockerMan/templates-user/my-RackView.xml \
-  https://raw.githubusercontent.com/alexanderschubert/rackview/main/unraid/rackview.xml
+  https://raw.githubusercontent.com/alexanderschubert/rackview/main/templates/rackview.xml
 ```
 
 Dann **Docker → Add Container**, oben unter *User templates* **RackView** wählen,
@@ -162,6 +163,13 @@ jede Docker-Installation, nicht nur für Unraid.
 - **Selbst bauen und entwickeln:** [ENTWICKLUNG.md](ENTWICKLUNG.md)
 
 Gebaut mit Laravel, Vue 3 und PostgreSQL.
+
+## Über das Projekt
+
+RackView ist aus meinem eigenen Homelab entstanden. Ideen, Aufbau und Entscheidungen
+stammen von mir, getestet wird im eigenen Rack auf Unraid. Den Code schreibe ich zum
+großen Teil zusammen mit [Claude](https://claude.ai), einem KI-Assistenten von
+Anthropic – deshalb steht Claude in den Commits als Co-Autor.
 
 ## Lizenz
 

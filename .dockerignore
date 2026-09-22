@@ -54,6 +54,8 @@ docker-compose*.yml
 *.md
 LICENSE
 docs/
+templates/
+ca_profile.xml
 .github/
 .claude/
 unraid/

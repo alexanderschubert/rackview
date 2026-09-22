@@ -6,7 +6,7 @@ Schnittstelle und die PostgreSQL-Datenbank. Installiert und aktualisiert wird
 
 | Datei | Zweck |
 | --- | --- |
-| `rackview.xml` | Vorlage für Unraid („user template") |
+| `../templates/rackview.xml` | Vorlage für Unraid – dieselbe Datei nutzt der App-Katalog |
 | `rackview-icon.png` | Symbol für die Docker-Übersicht |
 | `../docker/app/Dockerfile` | Bauanleitung für das Image |
 
@@ -52,7 +52,7 @@ In der Konsole von Unraid (oben rechts `>_`):
 
 ```bash
 wget -O /boot/config/plugins/dockerMan/templates-user/my-RackView.xml \
-  https://raw.githubusercontent.com/alexanderschubert/rackview/main/unraid/rackview.xml
+  https://raw.githubusercontent.com/alexanderschubert/rackview/main/templates/rackview.xml
 ```
 
 Die Vorlage liegt damit auf dem USB-Stick und übersteht jeden Neustart.

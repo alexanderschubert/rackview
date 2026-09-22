@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<CommunityApplications>
+  <Profile>
+**RackView** documents server racks and home networks: devices in rack units with front and rear view, ports and cable connections, network map, IPs and VLANs, power outlets, warranty dates and QR labels. One container with a built-in PostgreSQL database. The user interface is in German.
+
+**RackView** dokumentiert Serverschrank und Heimnetz: Geräte in Höheneinheiten, Ports und Verbindungen, Netzwerkplan, IP-Adressen und VLANs, Steckplätze, Garantie und QR-Etiketten. Ein Container mit eingebauter Datenbank.
+
+Ideas, design decisions and testing by Alexander Schubert in his own homelab; most of the code is written together with Claude, an AI assistant by Anthropic.
+
+Questions and bug reports: [GitHub Issues](https://github.com/alexanderschubert/rackview/issues)
+  </Profile>
+  <Icon>https://raw.githubusercontent.com/alexanderschubert/rackview/main/unraid/rackview-icon.png</Icon>
+  <WebPage>https://alexanderschubert.github.io/rackview/</WebPage>
+</CommunityApplications>

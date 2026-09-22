@@ -26,6 +26,8 @@ on:
       # der Filter nicht - eine Version wird immer gebaut.
       - '**.md'
       - 'docs/**'
+      - 'templates/**'
+      - 'ca_profile.xml'
       - 'LICENSE'
   pull_request:
   workflow_dispatch:

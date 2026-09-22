@@ -10,6 +10,11 @@
   <Support>https://github.com/alexanderschubert/rackview/issues</Support>
   <Project>https://github.com/alexanderschubert/rackview</Project>
   <Overview>
+    RackView documents server racks and home networks: devices in rack units with front
+    and rear view, devices outside the rack, port-to-port connections, network map, IP
+    and VLAN overview, power strips and UPS outlets, warranty dates and printable QR
+    labels. Everything runs in this single container - web UI, API and a built-in
+    PostgreSQL database. The user interface is in German.[br][br]
     RackView dokumentiert Serverschraenke und Heimnetz: Geraete in Hoeheneinheiten,
     Vorder- und Rueckansicht, Geraete ausserhalb der Racks, Netzwerkverbindungen
     zwischen Ports, IP- und VLAN-Uebersicht, Steckdosenleisten, Garantiedaten sowie
@@ -21,10 +26,18 @@
     Alle Daten liegen im Datenpfad (/config): Datenbank, Geraetebilder, naechtliche
     Sicherungen und der Anwendungsschluessel.
   </Overview>
-  <Category>Tools: Productivity:</Category>
+  <Category>Network:Management Tools:Utilities</Category>
   <WebUI>http://[IP]:[PORT:80]/</WebUI>
-  <TemplateURL/>
+  <TemplateURL>https://raw.githubusercontent.com/alexanderschubert/rackview/main/templates/rackview.xml</TemplateURL>
   <Icon>https://raw.githubusercontent.com/alexanderschubert/rackview/main/unraid/rackview-icon.png</Icon>
+  <License>MIT</License>
+  <ExtraSearchTerms>rack server patchpanel patch panel netzwerk network documentation dcim ipam netbox switch ports vlan pdu homelab</ExtraSearchTerms>
+  <Screenshot>https://raw.githubusercontent.com/alexanderschubert/rackview/main/docs/bilder/app-hell.png</Screenshot>
+  <Screenshot>https://raw.githubusercontent.com/alexanderschubert/rackview/main/docs/bilder/rack.png</Screenshot>
+  <Screenshot>https://raw.githubusercontent.com/alexanderschubert/rackview/main/docs/bilder/geraete.png</Screenshot>
+  <Screenshot>https://raw.githubusercontent.com/alexanderschubert/rackview/main/docs/bilder/netzplan.png</Screenshot>
+  <Screenshot>https://raw.githubusercontent.com/alexanderschubert/rackview/main/docs/bilder/steckplaetze.png</Screenshot>
+  <Screenshot>https://raw.githubusercontent.com/alexanderschubert/rackview/main/docs/bilder/etiketten.png</Screenshot>
   <ExtraParams/>
   <PostArgs/>
   <CPUset/>
