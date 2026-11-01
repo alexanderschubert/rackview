@@ -15,10 +15,10 @@ const props = defineProps({
 const emit = defineEmits(['select-device', 'add-connection'])
 
 // Masse im viewBox-Raster
-const NODE_W = 138
+const NODE_W = 184
 const NODE_H = 58
 const TIER_GAP = 116
-const COL_GAP = 168
+const COL_GAP = 216
 const PAD = 28
 
 const ROOT_TYPES = ['router', 'firewall']
@@ -209,6 +209,45 @@ const knoten = computed(() => {
 
 const knotenById = computed(() => new Map(knoten.value.map((k) => [k.id, k])))
 
+// Laufen mehrere Leitungen an derselben Kante eines Kastens an, bekommen
+// sie je einen eigenen Ansatzpunkt - sonst verschmelzen sie zu einem Band.
+// Sortiert wird nach der Lage der Gegenseite, damit sie sich nicht kreuzen.
+const ansatz = computed(() => {
+  const gruppen = new Map()
+
+  for (const kante of kanten.value) {
+    const p = knotenById.value.get(kante.a)
+    const q = knotenById.value.get(kante.b)
+
+    if (!p || !q || p.ebene === q.ebene) continue
+
+    const [oben, unten] = p.ebene < q.ebene ? [p, q] : [q, p]
+
+    for (const [knotenId, seite, gegenX] of [
+      [oben.id, 'unten', unten.x],
+      [unten.id, 'oben', oben.x],
+    ]) {
+      const schluessel = `${knotenId}-${seite}`
+      if (!gruppen.has(schluessel)) gruppen.set(schluessel, [])
+      gruppen.get(schluessel).push({ kante: kante.key, gegenX })
+    }
+  }
+
+  const versatz = new Map()
+
+  for (const [schluessel, eintraege] of gruppen) {
+    eintraege.sort((x, y) => x.gegenX - y.gegenX)
+
+    const schritt = Math.min(22, (NODE_W - 56) / Math.max(eintraege.length - 1, 1))
+
+    eintraege.forEach((eintrag, i) => {
+      versatz.set(`${schluessel}-${eintrag.kante}`, (i - (eintraege.length - 1) / 2) * schritt)
+    })
+  }
+
+  return versatz
+})
+
 const linien = computed(() => {
   return kanten.value
     .map((kante) => {
@@ -229,7 +268,9 @@ const linien = computed(() => {
         const y1 = oben.y + NODE_H
         const y2 = unten.y
         const mitte = (y1 + y2) / 2
-        pfad = `M ${oben.x} ${y1} C ${oben.x} ${mitte}, ${unten.x} ${mitte}, ${unten.x} ${y2}`
+        const x1 = oben.x + (ansatz.value.get(`${oben.id}-unten-${kante.key}`) || 0)
+        const x2 = unten.x + (ansatz.value.get(`${unten.id}-oben-${kante.key}`) || 0)
+        pfad = `M ${x1} ${y1} C ${x1} ${mitte}, ${x2} ${mitte}, ${x2} ${y2}`
       }
 
       return {
@@ -261,7 +302,8 @@ function kurz(text, laenge) {
 
 function metaZeile(device) {
   const teile = [getDeviceTypeLabel(device.device_type)]
-  if (device.vlan) teile.push(`VLAN ${device.vlan}`)
+  // Nur die Nummer - der Name des VLAN steht im Tooltip und in der VLAN-Ansicht
+  if (device.vlan) teile.push(`VLAN ${String(device.vlan).split(/\s*[-–]\s*/)[0]}`)
   return teile.join(' · ')
 }
 
@@ -331,8 +373,8 @@ function tooltip(device) {
             {{ getDeviceIcon(k.device.device_type) }}
           </text>
 
-          <text class="plan-node-name" x="36" y="24">{{ kurz(k.device.name, 15) }}</text>
-          <text class="plan-node-meta" x="36" y="41">{{ kurz(metaZeile(k.device), 20) }}</text>
+          <text class="plan-node-name" x="36" y="24">{{ kurz(k.device.name, 21) }}</text>
+          <text class="plan-node-meta" x="36" y="41">{{ kurz(metaZeile(k.device), 27) }}</text>
         </g>
       </svg>
     </div>

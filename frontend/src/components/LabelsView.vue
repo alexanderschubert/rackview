@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { getDeviceTypeLabel } from '../lib/deviceMeta.js'
 import { qrSvg } from '../lib/qr.js'
 
@@ -250,6 +250,33 @@ function drucken() {
   fenster.document.write(html)
   fenster.document.close()
 }
+
+// Die Vorschau ist millimetergenau, wird aber so weit verkleinert, dass
+// die ganze Seitenbreite in die Spalte passt (höchstens auf 80 %).
+const vorschauBox = ref(null)
+const vorschauZoom = ref(0.8)
+let beobachter = null
+
+function zoomNeuBerechnen() {
+  const box = vorschauBox.value
+  if (!box || !box.clientWidth) return
+
+  const seitenBreite = format.value.spalten * format.value.breite * 3.7795
+  vorschauZoom.value = Math.max(0.3, Math.min(0.8, (box.clientWidth - 4) / seitenBreite))
+}
+
+onMounted(() => {
+  zoomNeuBerechnen()
+
+  if (typeof ResizeObserver !== 'undefined' && vorschauBox.value) {
+    beobachter = new ResizeObserver(zoomNeuBerechnen)
+    beobachter.observe(vorschauBox.value)
+  }
+})
+
+onBeforeUnmount(() => beobachter?.disconnect())
+
+watch(format, zoomNeuBerechnen)
 </script>
 
 <template>
@@ -361,8 +388,10 @@ function drucken() {
         <p v-if="!gefiltert.length" class="etiketten-leer">Keine Geräte gefunden.</p>
       </div>
 
-      <div class="etiketten-vorschau">
+      <div ref="vorschauBox" class="etiketten-vorschau">
         <span class="etiketten-titel">Vorschau</span>
+
+        <div class="vorschau-zoom" :style="{ zoom: vorschauZoom }">
 
         <p v-if="!etiketten.length" class="etiketten-leer">
           Wähle links die Geräte aus, für die du Etiketten drucken willst.
@@ -394,6 +423,7 @@ function drucken() {
               </div>
             </template>
           </div>
+        </div>
         </div>
       </div>
     </div>
@@ -636,8 +666,11 @@ function drucken() {
 .etiketten-vorschau {
   overflow: auto;
   max-height: 640px;
+}
 
-  /* Nur die Vorschau ist verkleinert, der Druck bleibt maßhaltig */
+/* Nur die Vorschau ist verkleinert (Zoom kommt aus dem Skript),
+   der Druck bleibt maßhaltig */
+.vorschau-zoom {
   zoom: 0.8;
 }
 
