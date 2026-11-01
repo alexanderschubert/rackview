@@ -51,10 +51,6 @@ Alles Dauerhafte liegt im Datenpfad, im Container ist das `/config`:
 **Über den App-Katalog** – der einfache Weg: **Apps** → nach **RackView**
 suchen → **Install**. Es öffnet sich das Edit-Fenster aus Abschnitt 2.
 
-> **Bald verfügbar:** RackView ist für den App-Katalog freigegeben und erscheint
-> dort mit dessen nächster Aktualisierung. Bis dahin den Weg ohne App-Katalog
-> nehmen.
-
 **Ohne App-Katalog** – etwa wenn das Plugin *Community Applications* fehlt: die
 Vorlage in der Konsole von Unraid (oben rechts `>_`) auf den USB-Stick holen,
 

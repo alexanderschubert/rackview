@@ -67,10 +67,6 @@ Datenpfad – mehr braucht es nicht.
 RackView steht im App-Katalog: **Apps** → nach **RackView** suchen → **Install**.
 Port und Datenpfad prüfen, **Apply**.
 
-> **Bald verfügbar:** RackView ist für den App-Katalog freigegeben und erscheint dort
-> mit dessen nächster Aktualisierung. Findest du es noch nicht, nimm so lange den Weg
-> über die Vorlage.
-
 Ohne App-Katalog geht es über die Vorlage (Konsole von Unraid, oben rechts `>_`):
 
 ```bash

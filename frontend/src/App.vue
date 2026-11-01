@@ -2636,7 +2636,7 @@ async function deletePort(port) {
   />
 
   <div v-else class="app-shell">
-    <aside class="sidebar">
+    <aside class="sidebar" :class="{ 'nav-offen': navOffen }">
       <div class="brand">
         <img src="/rackview-logo.png" alt="RackView" class="brand-logo" />
 
@@ -2812,7 +2812,7 @@ async function deletePort(port) {
             </template>
 
             <button
-              v-else
+              v-else-if="racks.length"
               class="primary-button"
               type="button"
               @click="openNewRackForm"
@@ -2985,6 +2985,7 @@ async function deletePort(port) {
           </button>
 
           <button
+            v-if="racks.length"
             class="primary-button compact"
             @click="openNewRackForm"
           >
@@ -3176,6 +3177,11 @@ async function deletePort(port) {
         <div class="empty-state-icon">▤</div>
         <h3>Noch kein Rack vorhanden</h3>
         <p>Lege dein erstes Rack an, um Geräte und Ports zu verwalten.</p>
+        <ol class="erststart-schritte">
+          <li><strong>Rack anlegen</strong><span>Name und Höhe in HE</span></li>
+          <li><strong>Geräte einsetzen</strong><span>in die freien Höheneinheiten des Racks</span></li>
+          <li><strong>Ports verbinden</strong><span>der Netzwerkplan zeichnet sich selbst</span></li>
+        </ol>
         <button class="primary-button" @click="openNewRackForm">
           Erstes Rack erstellen
         </button>
@@ -7943,6 +7949,91 @@ body {
   }
 }
 
+/* =========================================================
+   Telefon: flachere Kopfkarte, Titel und Chips ohne Umbruch
+   ========================================================= */
+
+@media (max-width: 620px) {
+  /* Zugeklappt nur Logo und Menue-Knopf; Konto und Abmelden stehen
+     im aufgeklappten Menue. */
+  .sidebar:not(.nav-offen) .sidebar-user {
+    display: none !important;
+  }
+
+  .app-shell > .sidebar,
+  .sidebar {
+    padding: 12px 14px !important;
+  }
+
+  .sidebar:not(.nav-offen) .brand {
+    padding-bottom: 0 !important;
+    border-bottom: 0 !important;
+  }
+
+  .dashboard-layout .panel-heading {
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .dashboard-layout .panel-heading h2 {
+    white-space: nowrap;
+  }
+
+  .rack-stage-header {
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+  }
+
+  .rack-stage-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+/* Erststart: drei Schritte im Leerzustand */
+.erststart-schritte {
+  display: grid;
+  gap: 10px;
+  max-width: 360px;
+  margin: 0 0 22px;
+  padding: 0;
+  list-style: none;
+  counter-reset: schritt;
+  text-align: left;
+}
+
+.erststart-schritte li {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  column-gap: 12px;
+  align-items: center;
+  counter-increment: schritt;
+}
+
+.erststart-schritte li::before {
+  content: counter(schritt);
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--f-ton-97-7);
+  color: var(--rv-blue);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.erststart-schritte strong {
+  color: var(--rv-text);
+  font-size: 13px;
+}
+
+.erststart-schritte span {
+  color: var(--rv-muted);
+  font-size: 12px;
+}
 
 /* Waehrend ein Geraet im Rack gezogen wird: ueberall die Greifhand,
    nichts wird markiert (Klasse setzt App.vue am body) */

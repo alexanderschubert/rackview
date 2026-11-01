@@ -516,13 +516,12 @@
   border-color: transparent;
 }
 
-/* Das Logo ist für helle Flächen gezeichnet. Statt es umzufärben bekommt
-   es im Dunkeln eine helle Unterlage - so bleibt es originalgetreu. */
+/* Das Logo ist für helle Flächen gezeichnet (dunkle Schrift). Im Dunkeln
+   wird es umgekehrt und der Farbton zurückgedreht: Schrift wird hell, das
+   Blau bleibt Blau. Eine Unterlage braucht es dann nicht mehr. */
 :root[data-theme='dark'] .brand-logo,
 :root[data-theme='dark'] .login-logo {
-  padding: 8px 12px;
-  border-radius: 12px;
-  background: #eef2f8;
+  filter: invert(1) hue-rotate(180deg) brightness(1.08);
 }
 
 :root {
